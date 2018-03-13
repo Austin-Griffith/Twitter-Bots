@@ -25,4 +25,8 @@ outro = outroList[outroNum]
 tweet = intro + " " + outro
 tweet = tweet.replace('\n', '')
 
+#new comments for git change
+#delete later
+#update
+
 api.update_status(tweet)
