@@ -3,6 +3,8 @@
 from secrets import *
 import tweepy
 import csv
+import ipdb
+import json
 
 
 # twitter setup #
@@ -22,23 +24,18 @@ auth.set_access_token(A_TOKEN, A_TOKEN_SECRET)
 #     print(tweet.text)
 
 api = tweepy.API(auth,wait_on_rate_limit=True)
-#####United Airlines
-# Open/Create a file to append data
-csvFile = open('ua.csv', 'a')
-#Use csv Writer
-csvWriter = csv.writer(csvFile)
 
-for tweet in tweepy.Cursor(api.search,q="#rain",count=100,
+# Open/Create a file to append data
+# csvFile = open('ua.csv', 'a')
+# #Use csv Writer
+# csvWriter = csv.writer(csvFile)
+
+for tweet in tweepy.Cursor(api.search,q="#snow",count=100,
                            lang="en",
                            since="2017-04-03").items():
+    ipdb.set_trace()
     print (tweet.created_at, tweet.text)
-    csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8')])
-
-
-
-
-
-
-
-
-    
+    json_data = tweet.text
+    json_data_geo = tweet.geo
+    print(json_data)
+    # csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8')])
