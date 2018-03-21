@@ -9,7 +9,7 @@ from threading import Lock
 import json
 import sys
 import ssl
-
+import pdb
 # Tune CHUNKSIZE as needed.  The CHUNKSIZE is the size of compressed data read
 # For high volume streams, use large chuck sizes, for low volume streams, decrease
 # CHUNKSIZE.  Minimum practical is about 1K.
@@ -22,7 +22,9 @@ NEWLINE = '\r\n'
 HEADERS = { 'Accept': 'application/json',
             'Connection': 'Keep-Alive',
             'Accept-Encoding' : 'gzip',
-            'Authorization' : 'Basic %s' % base64.encodestring('%s:%s' % (UN, PWD))  }
+            'Authorization' : 'Basic %s' % base64.encodestring('%s:%s' % (UN, PWD)).replace('\n', '')  }
+
+print(repr(HEADERS['Authorization']))
 
 print_lock = Lock()
 err_lock = Lock()
@@ -39,6 +41,9 @@ class procEntry(threading.Thread):
                 tmp = json.dumps(jrec)
                 with print_lock:
                     print(tmp)
+                    #append to text file
+                    # with open('data.txt', 'a') as f:
+                    #     print(tmp, file=f)
             except ValueError, e:
                 with err_lock:
                     sys.stderr.write("Error processing JSON: %s (%s)\n"%(str(e), rec))
@@ -46,13 +51,14 @@ class procEntry(threading.Thread):
 def getStream():
     req = urllib2.Request(URL, headers=HEADERS)
     response = urllib2.urlopen(req, timeout=(1+GNIPKEEPALIVE))
-    # header -  print response.info()
     decompressor = zlib.decompressobj(16+zlib.MAX_WBITS)
     remainder = ''
     while True:
         tmp = decompressor.decompress(response.read(CHUNKSIZE))
         if tmp == '':
             return
+
+        pdb.set_trace()
         [records, remainder] = ''.join([remainder, tmp]).rsplit(NEWLINE,1)
         procEntry(records).start()
 
